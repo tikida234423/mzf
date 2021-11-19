@@ -1,0 +1,50 @@
+from telethon.sync import TelegramClient, events
+
+
+api_id = 8931916
+api_hash = "4a76bad509315241bc7cf154997de7a6"
+vipchan = -1001684883387
+mychan = -1001544645810  # куда пересылать
+channels = [-1001454764514, -1001204461117, -1001779721521]  # откуда пересылать
+
+GOODTEXT = {"могу", "зовут", "начинающий", "предоставляю", "создаю", "помогу", "занимаюсь", "ваш", "закончил", 'закончила', 'давай', 'приглашаю', "Контакт заказчика"}  # исключения
+BADTEXT = ["None", "хуй"]
+
+client = TelegramClient('myApp', api_id, api_hash)
+print("[+] activate")
+
+
+def to_lower(word: str):
+    return word.lower()
+
+
+@client.on(events.NewMessage(chats=channels))
+async def my_event_handler(event: events.newmessage.NewMessage.Event):
+    global GOODTEXT
+    global BADTEXT
+
+    message_text = event.raw_text
+    message_text_lowered = event.raw_text.lower()
+    if [element for element in BADTEXT if message_text_lowered.__contains__(element)]:
+
+        bad_message = event.message.text
+
+        bad_message = bad_message.replace('слово', '')
+    else:
+        if [element for element in GOODTEXT if message_text_lowered.__contains__(element)]:
+
+            sender = await event.get_sender()
+
+        #await asyncio.sleep(0.5)  # задержка
+
+        #await client.send_message(mychan, f"Контакт заказчика @{event.sender.username}")
+            message = event.message.text
+            promo = "\n\n Связаться с заказчиком: @OPLATAmzvipBOT"
+            mytext = f"\n\n Контакт заказчика @{event.sender.username}"
+            await client.send_message(vipchan, message + mytext)
+            await client.send_message(mychan, message + promo)
+
+
+
+with client:
+    client.run_until_disconnected()
